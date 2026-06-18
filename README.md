@@ -3,6 +3,7 @@
 ## 1. Thông tin bài làm
 
 - **Sinh viên:** Nguyễn Hữu Trung
+- **Mã sinh viên:*# 24107723
 - **Lớp:** N01.LT2
 - **Môn học:** Web nâng cao
 - **Framework sử dụng:** NestJS
