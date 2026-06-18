@@ -1,32 +1,12 @@
-# Bài kiểm tra giữa kỳ - Web nâng cao
-
-## 1. Thông tin bài làm
-
-- **Sinh viên:** Nguyễn Hữu Trung
-- **Mã sinh viên:*# 24107723
-- **Lớp:** N01.LT2
-- **Môn học:** Web nâng cao
-- **Framework sử dụng:** NestJS
-- **Đề tài thực hiện:** Phát triển phần mềm quản lý bán hàng
-- **Đối tượng CRUD:** Product / Sản phẩm
-- **Repository:** https://github.com/htrungggx/ktra-giua-ky
-
-## 2. Phạm vi thực hiện
-
 Trong bài kiểm tra này, em thực hiện chức năng CRUD cho đối tượng **Product / Sản phẩm**. Đây là đối tượng dùng để quản lý thông tin sản phẩm trong hệ thống bán hàng.
-
 Các chức năng đã triển khai gồm:
-
 - Thêm sản phẩm mới.
 - Xem danh sách sản phẩm.
 - Xem chi tiết một sản phẩm theo mã sản phẩm.
 - Cập nhật thông tin sản phẩm.
 - Xóa sản phẩm khỏi danh sách.
-
 Project được viết bằng NestJS và tổ chức theo các thành phần cơ bản: `Module`, `Controller`, `Service`, `DTO` và `Entity`.
-
-## 3. Cấu trúc thư mục chính
-
+## Cấu trúc thư mục chính
 ```text
 src
 ├── app.module.ts
@@ -42,7 +22,7 @@ src
     └── products.service.ts
 ```
 
-## 4. Mô tả các file chính
+## Mô tả các file chính
 
 | File | Nội dung |
 |---|---|
@@ -56,7 +36,7 @@ src
 | `product.entity.ts` | Mô tả các thuộc tính của sản phẩm |
 | `quan_ly_ban_hang.sql` | File SQL mô tả database và bảng `products` |
 
-## 5. Cơ sở dữ liệu
+## Cơ sở dữ liệu
 
 File SQL: `quan_ly_ban_hang.sql`
 
@@ -70,7 +50,7 @@ Bảng chính: `products`
 | `price` | DECIMAL(10,2) | Giá sản phẩm |
 | `quantity` | INT | Số lượng sản phẩm |
 
-## 6. API CRUD đã thực hiện
+## API CRUD đã thực hiện
 
 | Chức năng | Method | Endpoint | Mô tả |
 |---|---|---|---|
@@ -80,7 +60,7 @@ Bảng chính: `products`
 | Update | PUT | `/products/:id` | Cập nhật sản phẩm |
 | Delete | DELETE | `/products/:id` | Xóa sản phẩm |
 
-## 7. Cách chạy project
+## Cách chạy project
 
 Cài thư viện:
 
@@ -100,7 +80,7 @@ Sau khi chạy thành công, truy cập:
 http://localhost:3000/products
 ```
 
-## 8. Câu lệnh kiểm thử nhanh
+## Câu lệnh kiểm thử nhanh
 
 ### Xem danh sách sản phẩm
 
@@ -132,6 +112,6 @@ Invoke-RestMethod -Uri "http://localhost:3000/products/1" -Method Put -ContentTy
 Invoke-RestMethod -Uri "http://localhost:3000/products/1" -Method Delete
 ```
 
-## 9. Ghi chú
+##Ghi chú:
 
 Dữ liệu sản phẩm trong project được lưu tạm trong mảng để kiểm thử nhanh các API CRUD. File SQL vẫn được chuẩn bị riêng để mô tả thiết kế bảng `products` theo yêu cầu của bài kiểm tra.
