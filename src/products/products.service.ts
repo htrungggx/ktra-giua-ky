@@ -1,66 +1,122 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { Product } from './entities/product.entity';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { createPool } from "mysql2/promise";
+import { CreateProductDto } from "./dto/create-product.dto";
+import { UpdateProductDto } from "./dto/update-product.dto";
+
+const pool = createPool({
+  host: "127.0.0.1",
+  port: 3306,
+  user: "root",
+  password: "123123123",
+  waitForConnections: true,
+  connectionLimit: 10,
+});
 
 @Injectable()
 export class ProductsService {
-  private products: Product[] = [
-    {
-      id: 1,
-      name: 'Ao thun',
-      description: 'Ao thun cotton',
-      price: 150000,
-      quantity: 20,
-    },
-    {
-      id: 2,
-      name: 'Quan jean',
-      description: 'Quan jean xanh',
-      price: 300000,
-      quantity: 10,
-    },
-  ];
+  private async initDatabase() {
+    await pool.query(`
+      CREATE DATABASE IF NOT EXISTS quan_ly_ban_hang
+      CHARACTER SET utf8mb4
+      COLLATE utf8mb4_unicode_ci
+    `);
 
-  private nextId = 3;
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS quan_ly_ban_hang.products (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        price DECIMAL(10,2) NOT NULL,
+        quantity INT NOT NULL
+      )
+    `);
 
-  create(createProductDto: CreateProductDto): Product {
-    const product: Product = {
-      id: this.nextId++,
-      ...createProductDto,
-    };
+    const [rows]: any = await pool.query(
+      "SELECT COUNT(*) AS total FROM quan_ly_ban_hang.products",
+    );
 
-    this.products.push(product);
-    return product;
+    if (rows[0].total === 0) {
+      await pool.query(`
+        INSERT INTO quan_ly_ban_hang.products 
+        (name, description, price, quantity)
+        VALUES
+        ('Ao thun', 'Ao thun cotton', 150000, 20),
+        ('Quan jean', 'Quan jean xanh', 300000, 10)
+      `);
+    }
   }
 
-  findAll(): Product[] {
-    return this.products;
+  async create(createProductDto: CreateProductDto) {
+    await this.initDatabase();
+
+    const { name, description, price, quantity } = createProductDto;
+
+    const [result]: any = await pool.execute(
+      `INSERT INTO quan_ly_ban_hang.products 
+       (name, description, price, quantity) 
+       VALUES (?, ?, ?, ?)`,
+      [name, description, price, quantity],
+    );
+
+    return this.findOne(result.insertId);
   }
 
-  findOne(id: number): Product {
-    const product = this.products.find((item) => item.id === id);
+  async findAll() {
+    await this.initDatabase();
 
-    if (!product) {
-      throw new NotFoundException('Khong tim thay san pham');
+    const [rows] = await pool.query(
+      "SELECT * FROM quan_ly_ban_hang.products ORDER BY id ASC",
+    );
+
+    return rows;
+  }
+
+  async findOne(id: number) {
+    await this.initDatabase();
+
+    const [rows]: any = await pool.execute(
+      "SELECT * FROM quan_ly_ban_hang.products WHERE id = ?",
+      [id],
+    );
+
+    if (rows.length === 0) {
+      throw new NotFoundException("Không tìm thấy sản phẩm");
     }
 
-    return product;
+    return rows[0];
   }
 
-  update(id: number, updateProductDto: UpdateProductDto): Product {
-    const product = this.findOne(id);
-    Object.assign(product, updateProductDto);
-    return product;
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    await this.initDatabase();
+    await this.findOne(id);
+
+    const { name, description, price, quantity } = updateProductDto;
+
+    await pool.execute(
+      `UPDATE quan_ly_ban_hang.products
+       SET
+        name = COALESCE(?, name),
+        description = COALESCE(?, description),
+        price = COALESCE(?, price),
+        quantity = COALESCE(?, quantity)
+       WHERE id = ?`,
+      [name ?? null, description ?? null, price ?? null, quantity ?? null, id],
+    );
+
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    const product = this.findOne(id);
-    this.products = this.products.filter((item) => item.id !== id);
+  async remove(id: number) {
+    await this.initDatabase();
+    await this.findOne(id);
+
+    await pool.execute("DELETE FROM quan_ly_ban_hang.products WHERE id = ?", [
+      id,
+    ]);
 
     return {
-      message: 'Xoa san pham thanh cong',
-      data: product,
+      message: "Xóa sản phẩm thành công",
+      id,
     };
   }
 }
